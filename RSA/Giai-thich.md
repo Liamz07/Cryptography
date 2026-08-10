@@ -662,4 +662,4 @@ Trong hệ thống thực tế:
 - Việc sinh số nguyên tố phải dùng bộ sinh số ngẫu nhiên an toàn.
 - RSA thường dùng để bảo vệ khóa hoặc dữ liệu nhỏ, không phải để mã hóa toàn bộ dữ liệu lớn trực tiếp.
 
-Vì vậy, code RSA tự viết với p=17,q=11 phù hợp để **học thuật toán**, không phù hợp để bảo mật dữ liệu thực tế.
+Vì vậy, code RSA tự viết với `p = 17, q = 11` phù hợp để **học thuật toán**, không phù hợp để bảo mật dữ liệu thực tế.
