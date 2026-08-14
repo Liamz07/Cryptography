@@ -167,7 +167,7 @@ Ta biết Flag kết thúc bằng:
 Nếu byte cuối của Ciphertext tương ứng với `K4`, ta có:
 
 $$
-K_4=C_{last}\oplus\texttt{\}}
+K_4 = C_{\mathrm{last}} \oplus P_{\mathrm{last}}
 $$
 
 Trong Python:
