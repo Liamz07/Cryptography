@@ -21,23 +21,23 @@ Khóa bí mật RSA được tính theo các bước:
 
 1. Tính hàm Euler:
 
-   \[
-   \varphi(n) = (p - 1)(q - 1)
-   \]
+$$
+\varphi(n) = (p - 1)(q - 1)
+$$
 
 2. Tìm `d` sao cho:
 
-   \[
-   d × e \equiv 1 \pmod{\varphi(n)}
-   \]
+$$
+d \times e \equiv 1 \pmod{\varphi(n)}
+$$
 
-   Nói cách khác, `d` là nghịch đảo modulo của `e` theo modulo `phi`.
+Nói cách khác, `d` là nghịch đảo modulo của `e` theo modulo `phi`.
 
 3. Giải mã bản mã:
 
-   \[
-   m = c^d \bmod n
-   \]
+$$
+m = c^d \bmod n
+$$
 
 4. `m` là một số nguyên. Chuyển số nguyên sang dãy byte, rồi giải mã thành chuỗi để nhận flag.
 
