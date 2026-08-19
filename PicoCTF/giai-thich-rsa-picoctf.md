@@ -8,12 +8,74 @@ Ta có ba giá trị công khai của RSA:
 
 Trong RSA, `n = p × q`. Khi tìm được hai thừa số nguyên tố `p` và `q` của `n`, ta có thể tạo khóa bí mật `d` để giải mã.
 
-> Trong bài này, `p` và `q` đã được tìm ra từ việc phân tích `n`:
->
-> ```text
-> p = 1891771437429478964908181306574287207137
-> q = 501332739776173570344039681219489434626477
-> ```
+## Phân tích `n` để tìm `p` và `q`
+
+Không dùng phép thử chia lần lượt từ `2` đến `√n`: với một modulus RSA lớn, cách này không khả thi. Trong bối cảnh CTF, có hai lựa chọn Python thực tế:
+
+1. **Nhanh nhất khi có Internet:** hỏi [FactorDB](http://factordb.com/), cơ sở dữ liệu chứa các số đã được cộng đồng phân tích. Cách này đặc biệt phù hợp với challenge công khai như bài này.
+2. **Chạy hoàn toàn cục bộ:** dùng `sympy.factorint`. SymPy tự chọn các kỹ thuật như Pollard Rho, Pollard p-1 và ECM. Thời gian không được đảm bảo cho mọi RSA modulus, nhưng có thể dùng làm phương án dự phòng.
+
+Cài các thư viện cần thiết:
+
+```bash
+python -m pip install requests sympy pycryptodome
+```
+
+Chương trình dưới đây thử FactorDB trước; nếu cơ sở dữ liệu chưa có kết quả, nó chuyển sang SymPy. Sau khi chạy, hai số in ra chính là `p` và `q` để dùng ở phần giải mã.
+
+```python
+import math
+import requests
+from sympy import factorint
+
+n = 948406957756830799684818171639547165784816468744946013083947881743680617123566349
+
+
+def factors_from_factordb(value: int) -> list[int] | None:
+    """Lấy các thừa số từ FactorDB; trả về None nếu chưa phân tích xong."""
+    response = requests.get(
+        "http://factordb.com/api",
+        params={"query": str(value)},
+        timeout=15,
+    )
+    response.raise_for_status()
+    data = response.json()
+
+    # FF = fully factored. Các trạng thái khác có thể chưa cho đủ thừa số.
+    if data.get("status") != "FF":
+        return None
+
+    # Mỗi phần tử có dạng ["thừa_số", số_mũ]. Ví dụ ["17", 2] nghĩa là 17².
+    result = [int(factor) for factor, exponent in data["factors"] for _ in range(exponent)]
+    return result if math.prod(result) == value else None
+
+
+try:
+    factors = factors_from_factordb(n)
+except requests.RequestException:
+    factors = None
+
+if factors is None:
+    # Phương án cục bộ: SymPy chọn thuật toán phân tích phù hợp.
+    factor_map = factorint(n, use_ecm=True)
+    factors = [factor for factor, exponent in factor_map.items() for _ in range(exponent)]
+
+assert math.prod(factors) == n
+assert len(factors) == 2
+
+p, q = factors
+print(f"p = {p}")
+print(f"q = {q}")
+```
+
+Kết quả của bài này là:
+
+```text
+p = 1891771437429478964908181306574287207137
+q = 501332739776173570344039681219489434626477
+```
+
+> Lưu ý: đây không phải là lỗ hổng của RSA chuẩn với modulus đủ lớn. Bài CTF dùng `n` đủ nhỏ/đã có trong cơ sở dữ liệu để việc phân tích trở nên khả thi.
 
 ## Cơ sở toán học
 
